@@ -1,9 +1,12 @@
-# Web Crawler Project
+# Web Crawler 
 
 ## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
+   - [Required Features](#required-features)
+   - [Good-to-Have Features](#good-to-have-features)
+   - [Great-to-Have Features](#great-to-have-features)
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Dependencies](#dependencies)
@@ -14,9 +17,12 @@
 - [Administrative Control](#administrative-control)
 - [Caching with Redis](#caching-with-redis)
 - [Concurrency Patterns](#concurrency-patterns)
-- [Contributing](#contributing)
-- [License](#license)
-
+- [Documentation](#documentation)
+   - [Code Overview](#code-overview)
+   - [Variables](#variables)
+   - [Functions and Handlers](#functions-and-handlers)
+- [Demo](#demo)
+- [Thank You](#thank-you)
 ## Overview
 
 The Web Crawler Project is designed to provide a web crawling solution with a user-friendly web interface. Users can request the crawling of specific web pages, and the server efficiently handles these requests, prioritizing paying customers and providing reliable real-time or cached results.
@@ -60,14 +66,11 @@ The code relies on the following external libraries:
 
    ```sh
     cd web-crawler
-4. Install Dependencies
+3. Install Dependencies
     ```go
       go get "github.com/PuerkitoBio/goquery"
       go get "github.com/go-redis/redis"
       go get "github.com/gocolly/colly/v2"
-3. Build the project:
-    ```go
-     go build
 4. Run the Project
    ```go
    go run main.go
@@ -280,3 +283,8 @@ func main() {
    - After the Redis operation, the function checks for errors, and if an error occurs, it prints the error.
    - The function then recalculates the crawling limit based on the updated crawling speed and the number of workers.
    - Finally, it responds with a success message indicating that the crawling speed has been updated.
+## Demo
+[Video Link](https://drive.google.com/drive/folders/19Oy1DDucTDPMMdsZFr4rcC8u_1Q7Usve?usp=sharing)
+
+## Thank You
+![Alt text](https://i.gifer.com/5ARn.gif)

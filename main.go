@@ -190,13 +190,10 @@ func crawler(w http.ResponseWriter, r *http.Request) {
 	// Attempt to find the result in the results map with a maximum retry count.
 	for t := 0; t < 20; t++ {
 		if results[URL] == true {
-			fmt.Println("Found the target value:", URL)
-
 			// Re-enter the critical section to safely access Redis.
 			mu.Lock()
 			val, err := client.Get(URL).Result()
 			mu.Unlock()
-
 			// If the result is found, delete it from the results map, serve the content, and return.
 			if err == nil {
 				delete(results, URL)
@@ -231,18 +228,19 @@ func workers(URL string, workerChan chan string) {
 
 	// Handle the case where the target page is not modified.
 	if err != nil {
-		fmt.Println("Target Page is not modified")
+		fmt.Println("Target Page is not modified", err)
 	}
 
 	// Enter the critical section to safely update Redis with the modified HTML.
 	mu.Lock()
-	err = client.Set(URL, modifiedHtml, 120*time.Second).Err()
+	err = client.Set(URL, modifiedHtml, 3600*time.Second).Err()
 	mu.Unlock()
 
 	// Handle errors during updating Redis.
 	if err != nil {
 		fmt.Println("Not able to set value in Redis Database")
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
 
 	// Send a confirmation to the results queue that the URL has been successfully crawled.
@@ -259,8 +257,8 @@ func fetchWithRetryMechanism(URL string) (string, string) {
 	errs := "ERRORS"
 	html := "" // Initialize the HTML content variable.
 
-	// Perform up to 15 retries to fetch the HTML content.
-	for i := 1; i <= 15; i++ {
+	// Perform up to 10 retries to fetch the HTML content.
+	for i := 1; i <= 10; i++ {
 		c := colly.NewCollector()
 
 		// Define a callback function to handle the response and store the HTML content.
@@ -293,6 +291,7 @@ func fetchWithRetryMechanism(URL string) (string, string) {
 	// Return the HTML content and errors (if any) after all retries.
 	return html, errs
 }
+
 // modifyHtml processes the provided HTML content, ensuring that URLs within specific HTML tags are correctly formatted.
 // It takes the input 'html' as a string and a 'URL' string to create an absolute URL if necessary.
 // It returns the modified HTML as a string and any error encountered during processing.
@@ -301,7 +300,7 @@ func modifyHtml(html string, URL string) (string, error) {
 	doc, err := goquery.NewDocumentFromReader(strings.NewReader(html))
 	if err != nil {
 		// If an error occurs during parsing, log the error.
-		fmt.Println("ERROR")
+		fmt.Println("ERROR : ", err)
 	}
 
 	// Apply the 'goqueryHandler' function to modify URLs within specific HTML tags.
@@ -356,7 +355,6 @@ func goqueryHandler(doc *goquery.Document, tag string, attr string, URL string) 
 		}
 	})
 }
-
 
 // setWorkerFunc handles HTTP requests to update the number of worker threads for paying and non-paying customers.
 func setWorkerFunc(w http.ResponseWriter, r *http.Request) {
