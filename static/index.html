@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+
+        /* Style for the entire body */
+#serverBody{
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
+/* Style for the main container */
+#serverBody #oldContent {
+    background-color: #fff;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Style for the title */
+#serverBody h1 {
+    font-size: 24px;
+    text-align: center;
+}
+
+/* Style for the "Enter a URL to crawl" paragraph */
+#serverBody p {
+    font-size: 16px;
+}
+
+/* Style for the input field */
+#serverBody #urlInput {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Style for the checkbox label */
+#serverBody label[for="payingInput"] {
+    display: block;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+/* Style for the "Paying Customer" checkbox */
+#serverBody #payingInput {
+    margin: 0 5px;
+}
+
+/* Style for the "Crawl" button */
+#serverBody #crawlButton {
+    background-color: #007BFF;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Style for the result paragraph */
+#serverBody #result {
+    margin: 20px 0;
+    font-size: 18px;
+}
+
+/* Style for the "Back" button */
+#serverBody #backButton {
+    background-color: #dc3545;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Style for the content container */
+/* #serverBody #content {
+    background-color: #fff;
+    padding: 20px;
+    margin: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+} */
+
+/* Hide the content initially */
+
+
+/* Hide the "Back" button initially */
+#serverBody #backButton {
+    display: none;
+}
+
+    </style>
+    <title>Web Crawler</title>
+</head>
+<body>
+   <div id="serverBody">
+    <div id="oldContent"><h1>Web Crawler</h1>
+        <p>Enter a URL to crawl:</p>
+        <input type="text" id="urlInput" placeholder="Enter URL">
+        <input type="checkbox" id="payingInput"> Paying Customer
+        <button id="crawlButton">Crawl</button>
+        <p id="result"></p></div>
+        <button id="backButton" style="display: none;">Back to Crawler</button>   </div>
+    <div id="content" style="display: none;">
+        
+    </div>
+
+
+    <script>
+        // Add a click event listener to the "Crawl" button
+document.getElementById("crawlButton").addEventListener("click", async () => {
+    // Get user input from the web page
+    const url = document.getElementById("urlInput").value;
+    const paying = document.getElementById("payingInput").checked;
+    const resultElement = document.getElementById("result");
+    const contentElement = document.getElementById("content");
+    const oldResultContent = document.getElementById("oldContent");
+    const backButton = document.getElementById("backButton");
+
+    // Set the result text and hide the content initially
+    resultElement.textContent = "Crawling... Please wait.";
+    contentElement.style.display = "none";
+
+    try {
+        // Make an asynchronous request to the server to crawl the URL
+        const response = await fetch(`/results?url=${url}&paying=${paying}`);
+        
+        // Check the response status
+        if (response.status === 200) {
+            // If successful, display the crawled content and a back button
+            const content = await response.text();
+            resultElement.textContent = "Crawl successful!";
+            contentElement.innerHTML = content;
+            backButton.style.display = "block";
+            oldResultContent.style.display = "none";
+            contentElement.style.display = "block"; // Show the content
+        } else {
+            // Display a message if the crawl request failed
+            resultElement.textContent = "Crawl request failed.";
+        }
+    } catch (error) {
+        // Handle any errors during the crawl request
+        resultElement.textContent = "Crawl request failed: " + error;
+    }
+});
+
+// Add a click event listener to the "Back" button
+document.getElementById("backButton").addEventListener("click", async () => {
+    const backButton = document.getElementById("backButton");
+    const oldResultContent = document.getElementById("oldContent");
+    const contentElement = document.getElementById("content");
+    
+    try {
+        // Make an asynchronous request to the server to go back to the initial page
+        const response = await fetch("/");
+        
+        // Hide the back button and old result content, and clear the content
+        backButton.style.display = "none";
+        oldResultContent.style.display = "block";
+        contentElement.innerHTML = "";
+        contentElement.style.display = "none";
+    } catch (error) {
+        // Log any errors that occur during the back request
+        console.log(error);
+    }
+});
+
+    </script>
+</body>
+</html>
+
